@@ -1,7 +1,7 @@
 #!/bin/bash
 
 python train.py \
---trial 99 \
+--trial 105 \
 --model MACRO_VRNN \
 --x_dim 2 \
 --y_dim 10 \

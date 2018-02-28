@@ -10,8 +10,8 @@ You can edit `train_model.sh` and run that script, or run `train.py` directly wi
 
 ```javascript
 $ ./train_model.py
-$ python sample.py -t 99 -b 10 -n 10
-$ python plot.py -t 99 --animate
+$ python sample.py -t 105 -b 10 -n 10
+$ python plot.py -t 105 --animate
 ```
 Trained models for RNN_GAUSS (101), VRNN_SINGLE (102), VRNN_INDEP (103), and our model MACRO_VRNN (104) are included.
 
