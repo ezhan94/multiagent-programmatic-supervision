@@ -2,7 +2,7 @@
 
 Code is written with PyTorch (Python 3.6.1).
 
-First, download the data from [here](https://drive.google.com/drive/folders/1g6jlyYGH8rIrJfZ7TrGsCyS0Kf2d0lY-?usp=sharing) into the `bball_data/data/` folder.
+Dataset is available from [STATS](https://www.stats.com/data-science/). A pre-processed version is available [here](https://drive.google.com/drive/folders/1g6jlyYGH8rIrJfZ7TrGsCyS0Kf2d0lY-?usp=sharing). Download the data into the `bball_data/data/` folder.
 
 ## Example Run
 
