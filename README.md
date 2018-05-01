@@ -27,10 +27,10 @@ Trained models for RNN_GAUSS (101), VRNN_SINGLE (102), VRNN_INDEP (103), and our
 
 `model_utils.py` contains functions for sampling and calculating various losses.
 
-`bball_data\__init__.py` contains the `Dataset` object.
+`bball_data/__init__.py` contains the `Dataset` object.
 
-`bball_data\cfg.py` contains constants for the data.
+`bball_data/cfg.py` contains constants for the data.
 
-`bball_data\macro_goals.py` is the script used to extract macro-goals. Don't need to run again.
+`bball_data/macro_goals.py` is the script used to extract macro-goals. Don't need to run again.
 
-`bball_data\utils.py` contains the functions for plotting and animating.
+`bball_data/utils.py` contains the functions for plotting and animating.
