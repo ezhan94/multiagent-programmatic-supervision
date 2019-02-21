@@ -1,37 +1,32 @@
-import numpy as np
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+
+from matplotlib.patches import Rectangle
 from matplotlib import animation
 from skimage.transform import resize
 
-import bball_data.cfg as cfg
+from . import cfg, unnormalize
+
+
+######################################################################
+########################### Visualizations ###########################
+######################################################################
 
 
 SCALE = cfg.SCALE
 MACRO_SIZE = cfg.MACRO_SIZE*SCALE
-CMAP = cfg.CMAP_OFFENSE
-DEF_COLOR = 'b'
-
-
-def normalize(x):
-    dim = x.shape[-1]
-    return np.divide(x-cfg.SHIFT[:dim], cfg.NORMALIZE[:dim])
-
-
-def unnormalize(x):
-    dim = x.shape[-1]
-    return np.multiply(x, cfg.NORMALIZE[:dim]) + cfg.SHIFT[:dim]
 
 
 def _set_figax():
     fig = plt.figure(figsize=(5,5))
-    img = plt.imread(cfg.DATAPATH+'court.png')
+    img = plt.imread(cfg.DATAPATH+'/court.png')
     img = resize(img,(SCALE*cfg.WIDTH,SCALE*cfg.LENGTH,3))
 
     ax = fig.add_subplot(111)
     ax.imshow(img)
 
-    # show just the left half-court
+    # Show just the left half-court
     ax.set_xlim([-50,550])
     ax.set_ylim([-50,550])
     ax.get_xaxis().set_visible(False)
@@ -40,11 +35,26 @@ def _set_figax():
     return fig, ax
 
 
-def plot_sequence(seq, macro_goals=None, colormap=CMAP, burn_in=0, save_path='', save_name=''):
+def _get_cmap(n_players):
+    colormap = cfg.CMAP_OFFENSE
+    while len(colormap) < n_players:
+        colormap += cfg.DEF_COLOR
+    return colormap
+
+
+def display(seq, macro_intents, params=None, save_file='', colormap=cfg.CMAP_OFFENSE):
+    if params['normalize']:
+        seq = unnormalize(seq)
+
     n_players = int(len(seq[0])/2)
+    colormap = _get_cmap(n_players)
+    burn_in = params['burn_in']
+
+    alpha_line = [0.5] * n_players
+    alpha_dots = [0.5] * n_players
 
     while len(colormap) < n_players:
-        colormap += DEF_COLOR
+        colormap += cfg.DEF_COLOR
 
     fig, ax = _set_figax()
 
@@ -53,42 +63,44 @@ def plot_sequence(seq, macro_goals=None, colormap=CMAP, burn_in=0, save_path='',
         y = seq[:,(2*k+1)]
         color = colormap[k]
 
-        ax.plot(SCALE*x, SCALE*y, color=color, linewidth=3, alpha=0.7)
-        ax.plot(SCALE*x, SCALE*y, 'o', color=color, markersize=8, alpha=0.5)
+        ax.plot(SCALE*x, SCALE*y, color=color, linewidth=3, alpha=alpha_line[k])
+        ax.plot(SCALE*x, SCALE*y, 'o', color=color, markersize=10, alpha=alpha_dots[k])
 
-        if macro_goals is not None:
+        if macro_intents is not None:
             for t in range(len(seq)):
                 if t >= burn_in:
-                    m_x = int(macro_goals[t,k]/cfg.N_MACRO_Y)
-                    m_y = macro_goals[t,k] - cfg.N_MACRO_Y*m_x
-                    ax.add_patch(patches.Rectangle(
+                    m_x = int(macro_intents[t,k]/cfg.N_MACRO_Y)
+                    m_y = macro_intents[t,k] - cfg.N_MACRO_Y*m_x
+                    ax.add_patch(Rectangle(
                         (m_x*MACRO_SIZE, m_y*MACRO_SIZE), MACRO_SIZE, MACRO_SIZE, alpha=0.02, color=color, linewidth=2)) 
 
-    # starting positions
+    # Starting positions
     x = seq[0,::2]
     y = seq[0,1::2]
     ax.plot(SCALE*x, SCALE*y, 'o', color='black', markersize=12)
 
-    # burn-ins
+    # Burn-ins
     if burn_in > 0:
         x = seq[:burn_in,::2]
         y = seq[:burn_in,1::2]
-        ax.plot(SCALE*x, SCALE*y, color='0.01', linewidth=8, alpha=0.5)
+        ax.plot(SCALE*x, SCALE*y, color='black', linewidth=8, alpha=0.5)
 
     plt.tight_layout(pad=0)
 
-    if len(save_name) > 0:
-        plt.savefig(save_path+save_name+'.png')
+    if len(save_file) > 0:
+        plt.savefig(save_file+'.png')
     else:
         plt.show()
 
 
-def animate_sequence(seq, macro_goals=None, colormap=CMAP, burn_in=0, save_path='', save_name=''):
-    n_players = int(len(seq[0])/2)
-    seq_len = len(seq)
+def animate(seq, macro_intents, params=None, save_file='', colormap=cfg.CMAP_OFFENSE):
+    if params['normalize']:
+        seq = unnormalize(seq)
 
-    while len(colormap) < n_players:
-        colormap += DEF_COLOR
+    n_players = int(len(seq[0])/2)
+    colormap = _get_cmap(n_players)
+    burn_in = params['burn_in']
+    seq_len = len(seq)
 
     fig, ax = _set_figax()
 
@@ -97,9 +109,8 @@ def animate_sequence(seq, macro_goals=None, colormap=CMAP, burn_in=0, save_path=
     burn_ins = [ax.plot([],[])[0] for _ in range(n_players)]
 
     macros = []
-    if macro_goals is not None:
-        from matplotlib.patches import Rectangle
-        macros = [Rectangle(xy=(0, 0), width=MACRO_SIZE, height=MACRO_SIZE, alpha=0) for k in range(macro_goals.shape[1])]                                  
+    if macro_intents is not None:
+        macros = [Rectangle(xy=(0, 0), width=MACRO_SIZE, height=MACRO_SIZE, alpha=0) for k in range(macro_intents.shape[1])]                                  
     
     def init():
         for k in range(n_players):
@@ -139,11 +150,11 @@ def animate_sequence(seq, macro_goals=None, colormap=CMAP, burn_in=0, save_path=
             locations[p].set_data(SCALE*seq[t,2*p], SCALE*seq[t,2*p+1])
             burn_ins[p].set_data(SCALE*seq[:min(t, burn_in),2*p], SCALE*seq[:min(t, burn_in),2*p+1])
 
-        # start showing macro-goals after burn-in period
+        # Start showing macro-intents after burn-in period
         if t >= burn_in:
             for j,m in enumerate(macros):
-                m_x = int(macro_goals[t,j]/cfg.N_MACRO_Y)
-                m_y = macro_goals[t,j] - cfg.N_MACRO_Y*m_x
+                m_x = int(macro_intents[t,j]/cfg.N_MACRO_Y)
+                m_y = macro_intents[t,j] - cfg.N_MACRO_Y*m_x
                 m.set_xy([m_x*MACRO_SIZE, m_y*MACRO_SIZE])
                 m.set_alpha(0.5)
 
@@ -153,7 +164,7 @@ def animate_sequence(seq, macro_goals=None, colormap=CMAP, burn_in=0, save_path=
     
     anim = animation.FuncAnimation(fig, animate, init_func=init, frames=72, interval=100, blit=True)
 
-    if len(save_name) > 0:
-        anim.save(save_path+save_name+'.mp4', fps=7, extra_args=['-vcodec', 'libx264'])
+    if len(save_file) > 0:
+        anim.save(save_file+'.mp4', fps=7, extra_args=['-vcodec', 'libx264'])
     else:
         plt.show()
