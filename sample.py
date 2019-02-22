@@ -15,9 +15,9 @@ parser.add_argument('-t', '--trial', type=int, required=True, help='trial/model'
 parser.add_argument('-n', '--n_samples', type=int, default=5, required=False, help='number of samples')
 parser.add_argument('-b', '--burn_in', type=int, default=0, required=False, help='burn-in period')
 parser.add_argument('--shuffle', action='store_true', default=False, help='shuffle ground-truth burn-in from test set')
-parser.add_argument('--run', action='store_true', default=False, help='run an experiment')
-parser.add_argument('--plot', action='store_true', default=False, help='plot results form an experiment')
-parser.add_argument('--animate', action='store_true', default=False, help='animate sequences')
+parser.add_argument('--run', action='store_true', default=False, help='generate new samples')
+parser.add_argument('--plot', action='store_true', default=False, help='plot and save samples')
+parser.add_argument('--animate', action='store_true', default=False, help='animate and save samples')
 args, _ = parser.parse_known_args()
 
 
