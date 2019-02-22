@@ -1,6 +1,6 @@
-# Generating Multi-Agent Trajectories with Programmatic Weak Supervision
+# Generating Multi-Agent Trajectories using Programmatic Weak Supervision
 
-Code for paper titled [Generating Multi-Agent Trajectories with Programmatic Weak Supervision](https://arxiv.org/abs/1803.07612) by Zhan et al., ICLR 2019.
+Code for paper titled [Generating Multi-Agent Trajectories using Programmatic Weak Supervision](https://arxiv.org/abs/1803.07612) by Zhan et al., ICLR 2019.
 
 ## Installation & Setup
 
