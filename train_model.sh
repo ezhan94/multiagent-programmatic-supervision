@@ -1,16 +1,16 @@
 #!/bin/bash
 
 python train.py \
---trial 206 \
---model VRNN_MIXED \
---dataset boids \
---n_agents 8 \
+--trial 201 \
+--model VRNN_SINGLE \
+--dataset bball \
+--n_agents 5 \
 --x_dim 2 \
---y_dim 16 \
+--y_dim 10 \
 --m_dim 90 \
---z_dim 2 \
---h_dim 32 \
---rnn_dim 200 \
+--z_dim 80 \
+--h_dim 200 \
+--rnn_dim 900 \
 --rnn_macro_dim 200 \
 --rnn_micro_dim 200 \
 --n_layers 2 \
