@@ -50,7 +50,7 @@ $ python scripts/compute_bball_stats.py -t <trial_id>
 
 ## Pretrained Models
 
-Included in this repository in `saved/` are four pretrained models discussed in the paper:
+Included in this repository in `saved/` are four pretrained models for basketball as discussed in the paper:
 
 | Trial ID |    Model    |
 |:--------:|:-----------:|
